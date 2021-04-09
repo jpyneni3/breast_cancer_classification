@@ -25,6 +25,8 @@ library(corrplot)
 library(tsne)
 library(clusterCrit)
 
+setwd("C:/Users/gbeng/OneDrive/Documents")
+
 #Importing data
 gene_proteins <- read.csv("PAM50_proteins.csv")
 clinical <- read.csv("clinical_data_breast_cancer.csv")
@@ -68,7 +70,7 @@ plot(sort(naCounts, decreasing = TRUE), col ="red", type = 'h', xlab = "index of
 length(naCounts[naCounts>0.25])
 
 #remove variables with >25% missing data
-proteomes <- proteomes[ , colSums(is.na(proteomes))  / nrow(proteomes) < 0.25] #removing variables with >10% missing data
+proteomes <- proteomes[ , colSums(is.na(proteomes))  / nrow(proteomes) < 0.25] 
 
 #loop to impute means for remaining missing data
 for (i in which(sapply(proteomes, is.numeric))) {
@@ -140,7 +142,7 @@ stable_variables <- stable_variables[order(-stable_variables$times_selected),] #
 #plotting stable variables
 ggplot(stable_variables[1:30,], aes(x=reorder(as.factor(protein),-abs(times_selected),mean), y=times_selected, col =reorder(as.factor(protein),-abs(times_selected),mean), fill =reorder(as.factor(protein),-abs(times_selected),mean))) + geom_col(show.legend = FALSE, alpha = 0.6) + theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text=element_text(size=10)) + xlab("Protein") + ylab("Times selected") 
 
-stable_variables <- subset(stable_variables, times_selected > 25)
+stable_variables <- stable_variables[1:30,]
 
 STABVARS <- stable_variables$protein
 
@@ -167,7 +169,7 @@ svm.lin.mod <- train(PAM50.mRNA ~ ., data=data[samp, c(21, STABVARS.ind)], trCon
 svm.predicts <- predict(svm.lin.mod, newdata = data[-samp, c(21, STABVARS.ind)])
 
 #viewing confusion matrix
-confusionMatrix(svm.predicts, as.factor(data$PAM50.mRNA[-samp]))
+cm_svm <- confusionMatrix(svm.predicts, as.factor(data$PAM50.mRNA[-samp]))
 
 
 set.seed(1)
@@ -179,7 +181,7 @@ knn.lin.mod <- train(PAM50.mRNA ~ ., data=data[samp, c(21, STABVARS.ind)], trCon
 knn.predicts <- predict(knn.lin.mod, newdata = data[-samp, c(21, STABVARS.ind)])
 
 #viewing confusion matrix
-confusionMatrix(knn.predicts, as.factor(data$PAM50.mRNA[-samp]))
+cm_knn <- confusionMatrix(knn.predicts, as.factor(data$PAM50.mRNA[-samp]))
 
 
 
@@ -192,4 +194,6 @@ rf.lin.mod <- train(PAM50.mRNA ~ ., data=data[samp, c(21, STABVARS.ind)], trCont
 rf.predicts <- predict(rf.lin.mod, newdata = data[-samp, c(21, STABVARS.ind)])
 
 #viewing confusion matrix
-confusionMatrix(rf.predicts, as.factor(data$PAM50.mRNA[-samp]))
+cm_rf <- confusionMatrix(rf.predicts, as.factor(data$PAM50.mRNA[-samp]))
+
+
