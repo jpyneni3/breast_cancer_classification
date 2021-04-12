@@ -197,3 +197,16 @@ rf.predicts <- predict(rf.lin.mod, newdata = data[-samp, c(21, STABVARS.ind)])
 cm_rf <- confusionMatrix(rf.predicts, as.factor(data$PAM50.mRNA[-samp]))
 
 
+library(ggfortify)
+df <- data
+colnames_remove <- colnames(data[1:30])
+df <- df[,!names(df) %in% colnames_remove]
+pca_res <- prcomp(df, scale. = TRUE)
+autoplot(pca_res, data = data, colour = 'PAM50.mRNA') #PCA plot colored by breast cancer subtypes
+autoplot(pca_res, data = data, colour = 'Node') #PCA plot colored by node size
+
+chisq.test(data$Node, data$PAM50.mRNA)
+
+ggplot(data, aes(Node, col = Node, fill = PAM50.mRNA, alpha=0.7)) + geom_bar() + ggtitle("Distribution of patients with each cancer subtype across node size groups") 
+
+
