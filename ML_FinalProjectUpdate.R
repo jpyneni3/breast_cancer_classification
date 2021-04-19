@@ -196,17 +196,39 @@ rf.predicts <- predict(rf.lin.mod, newdata = data[-samp, c(21, STABVARS.ind)])
 #viewing confusion matrix
 cm_rf <- confusionMatrix(rf.predicts, as.factor(data$PAM50.mRNA[-samp]))
 
+library(yardstick)
+library(ggplot2)
+
+autoplot(cm_rf$table, type = "heatmap") +
+           scale_fill_gradient(low="#D6EAF8",high = "#2E86C1")
 
 library(ggfortify)
 df <- data
 colnames_remove <- colnames(data[1:30])
 df <- df[,!names(df) %in% colnames_remove]
 pca_res <- prcomp(df, scale. = TRUE)
-autoplot(pca_res, data = data, colour = 'PAM50.mRNA') #PCA plot colored by breast cancer subtypes
-autoplot(pca_res, data = data, colour = 'Node') #PCA plot colored by node size
+autoplot(pca_res, data = data, colour = 'PAM50.mRNA', size=5) #PCA plot colored by breast cancer subtypes
+autoplot(pca_res, data = data, colour = 'Stage', size=5) #PCA plot colored by breast cancer subtypes
 
 chisq.test(data$Node, data$PAM50.mRNA)
 
-ggplot(data, aes(Node, col = Node, fill = PAM50.mRNA, alpha=0.7)) + geom_bar() + ggtitle("Distribution of patients with each cancer subtype across node size groups") 
+ggplot(data, aes(Stage, col = Stage, fill = AJCC.Stage, alpha=0.7)) + geom_bar() + ggtitle("Distribution of patients with each cancer stage") 
 
 
+ library(dplyr)
+ data <- data %>% mutate(AJCC.Stage=recode(AJCC.Stage, 
+                                                                 'Stage IIA'="2",
+                                                                 'Stage IIB'="2",
+                                                                 'Stage II'="2",
+                                                                 'Stage I'="1",
+                                                                 'Stage IA'="1",
+                                                                 'Stage IB'="1",
+                                                                 'Stage IIIA'="3",
+                                                                 'Stage IIIB'="3",
+                                                                 'Stage III'="3",
+                                                                 'Stage IIIC'="3",
+                                                                 'Stage IV'="4"))
+ 
+ 
+
+ 
